@@ -1,0 +1,3 @@
+066d822bb3e44df4a346e2ad350b183c
+
+ // fetch('https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=066d822bb3e44df4a346e2ad350b183c')
