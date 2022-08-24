@@ -3,71 +3,68 @@ import Container from "react-bootstrap/Container";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Card, Row, Col, Spinner } from "react-bootstrap";
 import { useState, useEffect } from "react";
-// import { Link } from "react-router-dom";
+import { NewsState } from "../Conetext";
+import axios from "axios";
 
-const Content = (props) => {
+const Content = () => {
+
+  const { mode, NewsList, category, Txt } = NewsState();
   const [isLoading, setIsLoading] = useState([]);
   const [mydata, setData] = useState([]);
-  const { category } = props;
-  async function apiGet() {
-    setIsLoading(true);
-    await fetch(`https://inshorts.deta.dev/news?category=${category}`)
-      .then((response) => response.json())
-      .then((json) => {
-        console.log("updating..");
-        setData(json.data);
-        setIsLoading(false);
-      });
-  }
 
-  useEffect(
-    () => {
-      apiGet();
-      const interval = setInterval(async () => {
-        await fetch(`https://inshorts.deta.dev/news?category=${category}`)
-          .then((response) => response.json())
-          .then((json) => {
-            console.log("updating..");
-            setData(json.data);
-          });
-      }, 9000);
-      return () => clearInterval(interval);
-    },
-    []
-  );
+
+  const apiGet = async () => {
+    setIsLoading(true);
+    const { data } = await axios.get(NewsList(category));
+    setData(data);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+   apiGet()
+
+   const interval = setInterval(async () => {
+    const { data } = await axios.get(NewsList(category));
+    setData(data);
+  }, 9000);
+  return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category]);
 
   return (
     <div
-      key="diva"
-      className={`container justify-content-center align-items-center my-5 bg-${props.mode}`}
+      className={`container justify-content-center align-items-center my-5 bg-${mode}`}
       id="cgh"
     >
       {isLoading ? (
         <Container className="text-center">
           <Spinner
-            variant={`${props.mode === "light" ? "dark" : "light"}`}
+            variant={`${mode === "light" ? "dark" : "light"}`}
             animation="border"
             role="status"
           >
-            <span className="visually-hidden text-center">Loading...</span>
           </Spinner>
         </Container>
       ) : (
-        <Container key="conta" fluid>
-          <Row key="rows" xs={1} md={3} className={`my-4 bg-${props.mode}`}>
-            {mydata.map((value) => {
+        <Container fluid>
+          <Row className={`text-center bg-${mode} text-${
+                      mode === "light" ? "dark" : "light"
+                    }`}>
+            <h3>Todys latest <b>{Txt}</b> News</h3>
+          </Row>
+          <Row xs={1} md={3} className={`my-4 bg-${mode}`}>
+            {mydata.data.map((value, index) => {
               return (
                 <>
                   <Col
-                    key="aads"
-                    className={`container-fluid my-3 bg-${props.mode} text-${
-                      props.mode === "light" ? "dark" : "light"
+                    key={index}
+                    className={`container-fluid my-3 bg-${mode} text-${
+                      mode === "light" ? "dark" : "light"
                     }`}
                   >
                     <Card
-                      key={value.id}
-                      className={`mx-2 shadow- bg-${props.mode} text-${
-                        props.mode === "light" ? "dark" : "light"
+                      className={`mx-2 shadow- bg-${mode} text-${
+                        mode === "light" ? "dark" : "light"
                       }`}
                       style={{ borderRadius: "10px !important" }}
                     >
@@ -76,17 +73,17 @@ const Content = (props) => {
                         src={value.imageUrl}
                         style={{ borderRadius: "10px 10px 0px 0px" }}
                       />
-                      <Card.Body key="dsa">
+                      <Card.Body>
                         <Card.Title
                           className={`text-${
-                            props.mode === "light" ? "dark" : "light"
+                            mode === "light" ? "dark" : "light"
                           }`}
                         >
                           {value.title}
                         </Card.Title>
                         <Card.Text
                           className={`text-${
-                            props.mode === "light" ? "dark" : "secondary"
+                            mode === "light" ? "dark" : "secondary"
                           }`}
                         >
                           {value.content.substring(0, 90)}...
@@ -94,7 +91,7 @@ const Content = (props) => {
                         <p className="card-text">
                           <small
                             className={`text-muted text-${
-                              props.mode === "light" ? "dark" : "light"
+                              mode === "light" ? "dark" : "light"
                             }`}
                           >
                             {value.time}
@@ -104,9 +101,8 @@ const Content = (props) => {
 
                         <Card.Link href={value.readMoreUrl}>
                           <Button
-                            key="bot1"
                             variant={`${
-                              props.mode === "light" ? "primary" : "secondary"
+                              mode === "light" ? "primary" : "secondary"
                             }`}
                             text="dark"
                           >
